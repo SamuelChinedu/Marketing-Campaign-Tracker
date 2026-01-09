@@ -7,40 +7,43 @@ import numpy as np
 st.set_page_config(
     page_title="Marketing Campaign Tracker - Update-24 Tech",
     page_icon="📈",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-# Dark modern theme + branding
+# True dark/black theme with teal glow
 st.markdown("""
     <style>
-    .main { background-color: #0f172a; color: white; }
-    h1, h2, h3 { color: #00d4ff !important; }
-    .stMetric {
-        background: #1e293b;
+    .main { background-color: #000000; color: white; padding-bottom: 100px; }
+    .stApp { background-color: #000000; }
+    h1, h2, h3 { color: #00d4ff !important; font-family: 'Segoe UI', sans-serif; }
+    .metric-card {
+        background: #0d1117;
         border-radius: 12px;
         padding: 1.5rem;
         text-align: center;
         border-left: 5px solid #00d4ff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15);
+        margin-bottom: 1rem;
     }
-    .stMetric label { color: #94a3b8; font-size: 0.9rem; }
-    .stMetric .stMetric-value { color: white; font-size: 2rem; font-weight: bold; }
+    .metric-label { color: #94a3b8; font-size: 0.9rem; }
+    .metric-value { color: white; font-size: 2.2rem; font-weight: bold; }
     .footer {
         position: fixed;
         left: 0; bottom: 0; width: 100%;
-        background-color: #0f172a;
+        background-color: #000000;
         color: #94a3b8;
         text-align: center;
         padding: 1rem;
         font-size: 0.9rem;
-        border-top: 1px solid #334155;
+        border-top: 1px solid #1e293b;
+        z-index: 100;
     }
-    .sidebar .sidebar-content { background-color: #1e293b; }
-    hr { border-color: #334155; margin: 2rem 0; }
+    hr { border-color: #1e293b; margin: 2rem 0; }
     </style>
 """, unsafe_allow_html=True)
 
-# Title
+# Title with branding
 st.title("Marketing Campaign Tracker")
 st.markdown("**Track performance, ROI & channel efficiency** — Powered by Update-24 Tech Services")
 
@@ -49,24 +52,32 @@ campaigns = ["Q1 Campaign", "Q2 Campaign", "Summer Promo", "Holiday Special"]
 spend = [24500, 32000, 18000, 12500]
 revenue = [78200, 98000, 45000, 38000]
 roi = [((r - s) / s * 100) for r, s in zip(revenue, spend)]
-ctr = [12.5, 8.5, 5.7, 4.2]
 
 df = pd.DataFrame({
     "Campaign": campaigns,
     "Spend": spend,
     "Revenue": revenue,
-    "ROI": roi,
-    "CTR": ctr
+    "ROI": roi
 })
 
-# KPI cards with mini trends (mock small data for sparkline effect)
-kpi1, kpi2, kpi3, kpi4 = st.columns(4)
-kpi1.metric("Total Spend", f"${sum(spend):,}", delta="-5%", delta_color="inverse")
-kpi2.metric("Revenue", f"${sum(revenue):,}", delta="+8.5%", delta_color="normal")
-kpi3.metric("ROI", f"{np.mean(roi):.1f}x", delta="+4%", delta_color="normal")
-kpi4.metric("Avg CTR", f"{np.mean(ctr):.1f}%", delta="+5.2%", delta_color="normal")
+# KPI cards (with teal glow)
+col1, col2, col3 = st.columns(3)
+col1.markdown('<div class="metric-card">'
+              '<div class="metric-label">Total Spend</div>'
+              f'<div class="metric-value">${sum(spend):,}</div>'
+              '<div class="metric-label">↑ 12%</div></div>', unsafe_allow_html=True)
 
-# Campaign Performance Bar Chart
+col2.markdown('<div class="metric-card">'
+              '<div class="metric-label">Revenue</div>'
+              f'<div class="metric-value">${sum(revenue):,}</div>'
+              '<div class="metric-label">↑ 8.5%</div></div>', unsafe_allow_html=True)
+
+col3.markdown('<div class="metric-card">'
+              '<div class="metric-label">ROI</div>'
+              f'<div class="metric-value">{np.mean(roi):.1f}x</div>'
+              '<div class="metric-label">↑ 4%</div></div>', unsafe_allow_html=True)
+
+# Campaign Performance Bar
 st.markdown("### Campaign Performance Overview")
 fig_bar = px.bar(
     df,
@@ -74,12 +85,17 @@ fig_bar = px.bar(
     y=["Spend", "Revenue"],
     barmode="group",
     title="Spend vs Revenue by Campaign",
-    color_discrete_sequence=["#475569", "#00d4ff"]
+    color_discrete_sequence=["#1e293b", "#00d4ff"]
 )
-fig_bar.update_layout(showlegend=False, plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
+fig_bar.update_layout(
+    showlegend=False,
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    font_color="white"
+)
 st.plotly_chart(fig_bar, use_container_width=True)
 
-# Recent Activities (mock list)
+# Recent Activities
 st.markdown("### Recent Activities")
 activities = [
     "Campaign Q2 launched",
@@ -89,9 +105,9 @@ activities = [
     "Holiday Special scheduled"
 ]
 for act in activities:
-    st.markdown(f"• {act}")
+    st.markdown(f'<div style="color: #94a3b8; margin: 0.5rem 0;">• {act}</div>', unsafe_allow_html=True)
 
-# Top Channels Pie Chart
+# Top Channels Pie
 st.markdown("### Top Performing Channels")
 fig_pie = px.pie(
     names=["Social Media", "Email", "SEO", "PPC"],
@@ -100,6 +116,11 @@ fig_pie = px.pie(
     color_discrete_sequence=["#00d4ff", "#475569", "#94a3b8", "#334155"]
 )
 fig_pie.update_traces(textposition='inside', textinfo='percent+label')
+fig_pie.update_layout(
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    font_color="white"
+)
 st.plotly_chart(fig_pie, use_container_width=True)
 
 # Footer
