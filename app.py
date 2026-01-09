@@ -10,102 +10,96 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom branding CSS
+# Dark modern theme + branding
 st.markdown("""
     <style>
-    .main { background-color: #f8f9fa; padding-bottom: 100px; }
-    h1, h2, h3 { color: #0A2540 !important; }
+    .main { background-color: #0f172a; color: white; }
+    h1, h2, h3 { color: #00d4ff !important; }
     .stMetric {
-        background: white;
+        background: #1e293b;
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         padding: 1.5rem;
         text-align: center;
-        border-left: 5px solid #00B4D8;
+        border-left: 5px solid #00d4ff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
-    .stMetric label { color: #555; font-size: 0.95rem; }
-    .stMetric .stMetric-value { color: #0A2540; font-size: 2rem; font-weight: bold; }
+    .stMetric label { color: #94a3b8; font-size: 0.9rem; }
+    .stMetric .stMetric-value { color: white; font-size: 2rem; font-weight: bold; }
     .footer {
         position: fixed;
         left: 0; bottom: 0; width: 100%;
-        background-color: #0A2540;
-        color: white;
+        background-color: #0f172a;
+        color: #94a3b8;
         text-align: center;
         padding: 1rem;
         font-size: 0.9rem;
-        z-index: 100;
+        border-top: 1px solid #334155;
     }
+    .sidebar .sidebar-content { background-color: #1e293b; }
+    hr { border-color: #334155; margin: 2rem 0; }
     </style>
 """, unsafe_allow_html=True)
 
 # Title
-st.title("📈 Marketing Campaign Tracker")
-st.markdown("**Track performance, ROI & channel efficiency** — Built by Update-24 Tech Services")
+st.title("Marketing Campaign Tracker")
+st.markdown("**Track performance, ROI & channel efficiency** — Powered by Update-24 Tech Services")
 
-# Generate mock campaign data (Q1 2025)
-np.random.seed(42)
-campaigns = ["Social Media Blast", "Google Ads", "Email Newsletter", "Influencer Collab", "Content Marketing"]
-data = pd.DataFrame({
+# Generate mock data
+campaigns = ["Q1 Campaign", "Q2 Campaign", "Summer Promo", "Holiday Special"]
+spend = [24500, 32000, 18000, 12500]
+revenue = [78200, 98000, 45000, 38000]
+roi = [((r - s) / s * 100) for r, s in zip(revenue, spend)]
+ctr = [12.5, 8.5, 5.7, 4.2]
+
+df = pd.DataFrame({
     "Campaign": campaigns,
-    "Spend": np.random.randint(8000, 35000, 5),
-    "Revenue": np.random.randint(15000, 80000, 5),
-    "Impressions": np.random.randint(50000, 300000, 5),
-    "Clicks": np.random.randint(2000, 15000, 5),
+    "Spend": spend,
+    "Revenue": revenue,
+    "ROI": roi,
+    "CTR": ctr
 })
 
-data["ROI"] = ((data["Revenue"] - data["Spend"]) / data["Spend"] * 100).round(1)
-data["CTR"] = (data["Clicks"] / data["Impressions"] * 100).round(2)
+# KPI cards with mini trends (mock small data for sparkline effect)
+kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+kpi1.metric("Total Spend", f"${sum(spend):,}", delta="-5%", delta_color="inverse")
+kpi2.metric("Revenue", f"${sum(revenue):,}", delta="+8.5%", delta_color="normal")
+kpi3.metric("ROI", f"{np.mean(roi):.1f}x", delta="+4%", delta_color="normal")
+kpi4.metric("Avg CTR", f"{np.mean(ctr):.1f}%", delta="+5.2%", delta_color="normal")
 
-# Daily trend (mock 30 days)
-dates = pd.date_range("2025-01-01", periods=30)
-daily_trend = pd.DataFrame({
-    "Date": dates,
-    "Total Revenue": np.random.normal(5000, 1200, 30).cumsum().round(0)
-})
-
-# KPI cards
-col1, col2, col3, col4, col5 = st.columns(5)
-total_spend = data["Spend"].sum()
-total_revenue = data["Revenue"].sum()
-total_roi = ((total_revenue - total_spend) / total_spend * 100).round(1)
-
-col1.metric("Total Spend", f"₦{total_spend:,.0f}")
-col2.metric("Total Revenue", f"₦{total_revenue:,.0f}")
-col3.metric("Overall ROI", f"{total_roi}%")
-col4.metric("Total Impressions", f"{data['Impressions'].sum():,}")
-col5.metric("Avg CTR", f"{data['CTR'].mean():.2f}%")
-
-# Main charts
-st.markdown("### Campaign Performance Comparison")
+# Campaign Performance Bar Chart
+st.markdown("### Campaign Performance Overview")
 fig_bar = px.bar(
-    data,
+    df,
     x="Campaign",
     y=["Spend", "Revenue"],
     barmode="group",
     title="Spend vs Revenue by Campaign",
-    color_discrete_sequence=["#0A2540", "#00B4D8"]
+    color_discrete_sequence=["#475569", "#00d4ff"]
 )
+fig_bar.update_layout(showlegend=False, plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
 st.plotly_chart(fig_bar, use_container_width=True)
 
-st.markdown("### Daily Revenue Trend (Last 30 Days)")
-fig_line = px.line(
-    daily_trend,
-    x="Date",
-    y="Total Revenue",
-    title="Daily Revenue Performance",
-    color_discrete_sequence=["#00B4D8"]
-)
-fig_line.update_traces(line=dict(width=3))
-st.plotly_chart(fig_line, use_container_width=True)
+# Recent Activities (mock list)
+st.markdown("### Recent Activities")
+activities = [
+    "Campaign Q2 launched",
+    "Performance review meeting",
+    "Budget allocation updated",
+    "Q1 report shared with team",
+    "Holiday Special scheduled"
+]
+for act in activities:
+    st.markdown(f"• {act}")
 
-st.markdown("### Channel Breakdown (Impressions)")
+# Top Channels Pie Chart
+st.markdown("### Top Performing Channels")
 fig_pie = px.pie(
-    data,
-    values="Impressions",
-    names="Campaign",
-    title="Impressions Share by Campaign",
-    color_discrete_sequence=px.colors.qualitative.Set2
+    names=["Social Media", "Email", "SEO", "PPC"],
+    values=[35, 25, 20, 20],
+    title="Channel Contribution to Impressions",
+    color_discrete_sequence=["#00d4ff", "#475569", "#94a3b8", "#334155"]
 )
+fig_pie.update_traces(textposition='inside', textinfo='percent+label')
 st.plotly_chart(fig_pie, use_container_width=True)
 
 # Footer
